@@ -1,7 +1,7 @@
 restaurants service "{{ .Release.Name }}" installed (chart {{ include "restaurants.chart" . }}).
 
 Service: {{ include "restaurants.fullname" . }} (type {{ .Values.service.type }}, port {{ .Values.port }})
-Database: {{ if .Values.postgresql.enabled }}in-cluster PostgreSQL ({{ include "restaurants.fullname" . }}-db){{ else }}external — DATABASE_URL read from Secret "{{ include "restaurants.dbSecret" . }}"{{ end }}.
+Database: {{ if .Values.postgresql.enabled }}in-cluster PostgreSQL ({{ include "restaurants.fullname" . }}-db){{ else }}external. DATABASE_URL read from Secret "{{ include "restaurants.dbSecret" . }}"{{ end }}.
 
 Sibling services address this one at:
   http://{{ include "restaurants.fullname" . }}:{{ .Values.port }}
