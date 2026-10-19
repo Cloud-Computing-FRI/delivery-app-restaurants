@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "restaurants.fullname" . }}
+  labels:
+    {{- include "restaurants.labels" . | nindent 4 }}
+    {{- include "restaurants.selectorLabels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  selector:
+    {{- include "restaurants.selectorLabels" . | nindent 4 }}
+  ports:
+    - port: {{ .Values.port }}
+      targetPort: {{ .Values.port }}

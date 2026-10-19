@@ -1,0 +1,16 @@
+restaurants service "{{ .Release.Name }}" installed (chart {{ include "restaurants.chart" . }}).
+
+Service: {{ include "restaurants.fullname" . }} (type {{ .Values.service.type }}, port {{ .Values.port }})
+Database: {{ if .Values.postgresql.enabled }}in-cluster PostgreSQL ({{ include "restaurants.fullname" . }}-db){{ else }}external — DATABASE_URL read from Secret "{{ include "restaurants.dbSecret" . }}"{{ end }}.
+
+Sibling services address this one at:
+  http://{{ include "restaurants.fullname" . }}:{{ .Values.port }}
+(keep fullnameOverride at its default so that name stays stable for peers.)
+
+Check it from inside the cluster:
+  kubectl port-forward svc/{{ include "restaurants.fullname" . }} 8000:{{ .Values.port }}
+  curl http://localhost:8000/health
+
+List the release:   helm list
+Upgrade an env:     helm upgrade {{ .Release.Name }} <chart> -f values-<env>.yaml
+Roll back:          helm rollback {{ .Release.Name }}

@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "restaurants.fullname" . }}
+  labels:
+    {{- include "restaurants.labels" . | nindent 4 }}
+    {{- include "restaurants.selectorLabels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicas | default 1 }}
+  selector:
+    matchLabels:
+      {{- include "restaurants.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "restaurants.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: restaurants
+          image: "{{ .Values.image.username }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.port }}
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "restaurants.dbSecret" . }}
+                  key: DATABASE_URL
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.port }}
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.port }}
+          {{- with .Values.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}

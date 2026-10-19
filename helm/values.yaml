@@ -1,0 +1,42 @@
+# Defaults for the restaurants service, safe for a local kind cluster.
+# Override per environment with -f values-<env>.yaml, and set the image owner
+# with --set image.username=...
+nameOverride: ""
+fullnameOverride: ""        # empty -> the chart name "restaurants" (a stable,
+                            # release-independent Service name peers can address).
+
+image:
+  username: davidn14
+  repository: delivery-app-restaurants
+  tag: v1
+  pullPolicy: IfNotPresent
+
+replicas: 1
+port: 8000
+
+service:
+  type: ClusterIP           # backend service: reached in-cluster only.
+
+# Applied to the container when set (staging/prod fill this in).
+resources: {}
+
+# This service's own in-cluster PostgreSQL. Disable for a managed DB (prod).
+postgresql:
+  enabled: true
+  image: postgres:16
+  storage: 1Gi
+  auth:
+    user: app
+    password: app
+    db: restaurants
+
+# How this service's DATABASE_URL Secret is produced.
+database:
+  manageSecret: true        # true: the chart creates the db Secret from the fields below.
+  host: ""                  # empty -> this chart's in-cluster Postgres service.
+  port: 5432
+  user: app
+  password: app
+  name: restaurants         # database name inside the Postgres instance.
+  sslmode: disable
+  existingSecret: ""        # prod: name of a pre-created Secret holding DATABASE_URL.
